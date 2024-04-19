@@ -1,11 +1,19 @@
 # GitOps Tools
 
-A Github Actions to be used in GitOps workflows. Normally this actions is used in workflows inside of your application repository where the source code is stored and the GitOps configuration is stored in a separate repository.
+A set of tools to support the implementation of GitOps workflows on GitHub.
 
-## Usage
+Currently implemented is a GitHub Action intended for use in an application or service repository to trigger updates in a GitOps config repository.
+
+## Install
+
+Include this action in your CI pipeline towards the end of the workflow. It will manage the opening and merging of release PRs in the GitOps config repository. It accepts the following options: 
 
 ```yaml
 steps:
+  
+  # other test, build, etc steps
+  # ...
+  
   - name: Deploy
     uses: docker://ghcr.io/geode-io/gitops-tools:latest
     env:
@@ -23,9 +31,9 @@ steps:
       PR_BODY: # Body of the PR in the config repository (optional)
 ```
 
-### Configurations
+### Configuring Deployments
 
-This action has a configuration file that is used to define how this action should update and deploy the changes to the config repository. Here is the schema of the configuration file:
+This action will read a configuration file in your app repo to determine how it should update the config repository to deploy changes. The schema looks like this:
 
 ```yaml
 apiVersion: infrastructure.geode.io/v1alpha1
@@ -77,7 +85,7 @@ spec:
 - `targetStack`: Stack where the changes should be deployed. It is used with the combination of `appPathPrefix` and `app` from the `configRepo`.
 - `autoDeploy`: Flag to enable/disable the auto merge of the PR created by this action.
 
-### Example - Mono Repo
+### Full Example - Mono Repo
 
 Let's say you have a mono repo where you have multiple services source code and you want to update the GitOps configuration after building images and pushing them to the registry. Here is an example of how you can use this action in the mono repo:
 
