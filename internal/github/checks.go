@@ -11,18 +11,22 @@ import (
 func (c *Client) WaitForPRChecks(pr *github.PullRequest) error {
 	checks, err := c.GetPRChecks(pr)
 	if err != nil {
-		return err
+		checksErr := c.ChecksErr(checks)
+		switch err.Error() {
+		case "CheckNotCompleted":
+			actions.Infof("One or more checks have not completed yet. retrying...")
+			return checksErr
+		case "CheckFailed":
+			actions.Infof("One or more checks failed. retrying...")
+			return checksErr
+		case "NoChecksFound":
+			actions.Infof("No checks found for PR. This is likely due to a delay in the checks being reported by GitHub. retrying...")
+			return checksErr
+		default:
+			return err
+		}
 	}
-	err = c.ChecksErr(checks)
-	switch err.Error() {
-	case "CheckNotCompleted":
-		actions.Infof("One or more checks have not completed yet. retrying...")
-	case "CheckFailed":
-		actions.Infof("One or more checks failed. retrying...")
-	case "NoChecksFound":
-		actions.Infof("No checks found for PR. This is likely due to a delay in the checks being reported by GitHub. retrying...")
-	}
-	return err
+	return nil
 }
 
 func (c *Client) ChecksErr(checks *github.ListCheckSuiteResults) (err error) {
