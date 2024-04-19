@@ -4,6 +4,16 @@ A set of tools to support the implementation of GitOps workflows on GitHub.
 
 Currently implemented is a GitHub Action intended for use in an application or service repository to trigger updates in a GitOps config repository.
 
+<!-- TOC -->
+* [GitOps Tools](#gitops-tools)
+  * [Install](#install)
+    * [Configuring Deployments](#configuring-deployments)
+      * [Config Repo](#config-repo)
+      * [Target Files](#target-files)
+      * [Deployments](#deployments)
+    * [Full Example - Mono Repo](#full-example---mono-repo)
+<!-- TOC -->
+
 ## Install
 
 Include this action in your CI pipeline towards the end of the workflow. It will manage the opening and merging of release PRs in the GitOps config repository. It accepts the following options: 
@@ -297,7 +307,6 @@ jobs:
           context: ${{ matrix.service-path }}
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
