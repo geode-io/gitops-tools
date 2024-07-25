@@ -31,7 +31,7 @@ func (c *Client) WaitForPRChecks(pr *github.PullRequest) error {
 
 func (c *Client) ChecksErr(checks *github.ListCheckSuiteResults) (err error) {
 	success := true
-	if len(checks.CheckSuites) == 0 {
+	if checks == nil || len(checks.CheckSuites) == 0 {
 		return fmt.Errorf("NoChecksFound")
 	}
 	for _, check := range checks.CheckSuites {
