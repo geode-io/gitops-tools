@@ -20,6 +20,7 @@ func main() {
 	appName := kingpin.Flag("app-name", "Name of the app. required if app-config is not provided").Envar("APP_NAME").String()
 	appConfig := kingpin.Flag("app-config", "Path to the gitops app config file. required if app-name is not provided").Envar("APP_CONFIG").String()
 	value := kingpin.Flag("value", "Value to update in the config files").Required().Envar("VALUE").String()
+	targetStack := kingpin.Flag("target-stack", "Target stack to update").Envar("TARGET_STACK").String()
 	ghToken := kingpin.Flag("gh-token", "Github Token for git and Github operations").Envar("GH_TOKEN").String()
 	ghAppKey := kingpin.Flag("gh-app-key", "Github App Key for Github operations").Envar("GH_APP_KEY").String()
 	ghAppId := kingpin.Flag("gh-app-id", "Github App ID for Github operations").Envar("GH_APP_ID").Int64()
@@ -76,6 +77,10 @@ func main() {
 	actions.EndGroup()
 
 	for _, d := range c.Spec.Deployments {
+		if *targetStack != "" && d.TargetStack != *targetStack {
+			actions.Infof("skipping deployment for stack: %s since it's not the target stack", d.TargetStack)
+			continue
+		}
 		actions.Group(fmt.Sprintf("🚀 Deployment: %s", d.TargetStack))
 		actions.Infof("Starting the deployment process")
 		defer actions.EndGroup()
