@@ -5,30 +5,31 @@ A set of tools to support the implementation of GitOps workflows on GitHub.
 Currently implemented is a GitHub Action intended for use in an application or service repository to trigger updates in a GitOps config repository.
 
 <!-- TOC -->
-* [GitOps Tools](#gitops-tools)
-  * [Install](#install)
-    * [Configuring Deployments](#configuring-deployments)
-      * [Config Repo](#config-repo)
-      * [Target Files](#target-files)
-      * [Deployments](#deployments)
-    * [Full Example - Mono Repo](#full-example---mono-repo)
+- [GitOps Tools](#gitops-tools)
+  - [Install](#install)
+    - [Configuring Deployments](#configuring-deployments)
+      - [Config Repo](#config-repo)
+      - [Target Files](#target-files)
+      - [Deployments](#deployments)
+    - [Full Example - Mono Repo](#full-example---mono-repo)
 <!-- TOC -->
 
 ## Install
 
-Include this action in your CI pipeline towards the end of the workflow. It will manage the opening and merging of release PRs in the GitOps config repository. It accepts the following options: 
+Include this action in your CI pipeline towards the end of the workflow. It will manage the opening and merging of release PRs in the GitOps config repository. It accepts the following options:
 
 ```yaml
 steps:
-  
+
   # other test, build, etc steps
   # ...
-  
+
   - name: Deploy
     uses: docker://ghcr.io/geode-io/gitops-tools:latest
     env:
       APP_NAME: # Name of the application (optional if app config is provided)
       APP_CONFIG: # Path to the application gitops config (optional if global config is provided)
+      TARGET_STACK: # If specified, will only run deployments for the specified stack (optional)
       GLOBAL_CONFIG: # Path to the global gitops config (optional if app config is provided)
       VALUE: # Value to update the files in the config repository (required)
       GH_TOKEN: # Github PAT with proper permissions (optional if GH_APP_KEY is provided)
@@ -341,6 +342,7 @@ jobs:
           GH_TOKEN: ${{ steps.create_token.outputs.token }}
           APP_NAME: ${{ steps.service-name.outputs.service }}
           APP_CONFIG: ${{ matrix.service-path }}/gitops-actions.yaml # load the service specific config if exists
+          TARGET_STACK: dev # if you want to deploy to a specific stack
           VALUE: ${{ github.sha }}
           GLOBAL_CONFIG: gitops-actions.yaml
           GIT_COMMIT_AUTHOR_NAME: "geode-actions-bot"
