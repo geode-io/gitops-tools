@@ -32,10 +32,9 @@ steps:
       TARGET_STACK: # If specified, will only run deployments for the specified stack (optional)
       GLOBAL_CONFIG: # Path to the global gitops config (optional if app config is provided)
       VALUE: # Value to update the files in the config repository (required)
-      GH_TOKEN: # Github PAT with proper permissions (optional if GH_APP_KEY is provided)
-      GH_APP_KEY: # Github App private key (optional if GH_TOKEN is provided)
-      GH_APP_ID: # Github App ID (optional if GH_TOKEN is provided)
-      GH_APP_INSTALLATION_ID: # Github App Installation ID (optional if GH_TOKEN is provided)
+      GH_APP_KEY: # Github App private key
+      GH_APP_ID: # Github App ID
+      GH_APP_INSTALLATION_ID: # Github App Installation ID
       GIT_COMMIT_AUTHOR_NAME: # Name of the commit author (optional)
       GIT_COMMIT_AUTHOR_EMAIL: # Email of the commit author (optional)
       PR_TITLE: # Title of the PR in the config repository (optional)
@@ -330,16 +329,12 @@ jobs:
         run: |
           echo "service=$(echo ${{ matrix.service-path }} | sed 's/services\///g')" >> "${GITHUB_OUTPUT}"
 
-      - id: create_token
-        uses: tibdex/github-app-token@v2
-        with:
-          app_id: 12345
-          private_key: ${{ secrets.PRIVATE_KEY }}
-
       - name: Deploy
         uses: docker://ghcr.io/geode-io/gitops-tools:latest
         env:
-          GH_TOKEN: ${{ steps.create_token.outputs.token }}
+          GH_APP_KEY: # Github App private key
+          GH_APP_ID: # Github App ID
+          GH_APP_INSTALLATION_ID: # Github App Installation ID
           APP_NAME: ${{ steps.service-name.outputs.service }}
           APP_CONFIG: ${{ matrix.service-path }}/gitops-actions.yaml # load the service specific config if exists
           TARGET_STACK: dev # if you want to deploy to a specific stack
@@ -347,6 +342,3 @@ jobs:
           GLOBAL_CONFIG: gitops-actions.yaml
           GIT_COMMIT_AUTHOR_NAME: "geode-actions-bot"
 ```
-
-> [!TIP]
-> It is recommended to use a Github App to authenticate with Github API. You can use the `tibdex/github-app-token` action to create a token for the Github App and use it in the action.

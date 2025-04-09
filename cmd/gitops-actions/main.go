@@ -21,7 +21,6 @@ func main() {
 	appConfig := kingpin.Flag("app-config", "Path to the gitops app config file. required if app-name is not provided").Envar("APP_CONFIG").String()
 	value := kingpin.Flag("value", "Value to update in the config files").Required().Envar("VALUE").String()
 	targetStack := kingpin.Flag("target-stack", "Target stack to update").Envar("TARGET_STACK").String()
-	ghToken := kingpin.Flag("gh-token", "Github Token for git and Github operations").Envar("GH_TOKEN").String()
 	ghAppKey := kingpin.Flag("gh-app-key", "Github App Key for Github operations").Envar("GH_APP_KEY").String()
 	ghAppId := kingpin.Flag("gh-app-id", "Github App ID for Github operations").Envar("GH_APP_ID").Int64()
 	ghAppInstallationId := kingpin.Flag("gh-app-installation-id", "Github App Installation ID for Github operations").Envar("GH_APP_INSTALLATION_ID").Int64()
@@ -53,7 +52,6 @@ func main() {
 
 	actions.Infof("initializing git client ...")
 	git, err := git.NewClient(&git.ClientOpts{
-		Token:             *ghToken,
 		AppKey:            *ghAppKey,
 		AppId:             *ghAppId,
 		AppInstallationId: *ghAppInstallationId,
@@ -66,7 +64,6 @@ func main() {
 
 	actions.Infof("initializing github client ...")
 	gh, err := github.NewClient(&github.ClientOpts{
-		Token:             *ghToken,
 		AppKey:            *ghAppKey,
 		AppId:             *ghAppId,
 		AppInstallationId: *ghAppInstallationId,

@@ -9,7 +9,7 @@ import (
 )
 
 type ClientOpts struct {
-	Token, AppKey            string
+	AppKey            string
 	AppId, AppInstallationId int64
 	AuthorName, AuthorEmail  string
 }
@@ -41,21 +41,16 @@ func NewClient(opts *ClientOpts) (*Client, error) {
 		authorName:  opts.AuthorName,
 		authorEmail: opts.AuthorEmail,
 	}
-	token := opts.Token
-	if token == "" {
-		client.authMethod = "app"
-		client.ctx = context.Background()
-		itr, err := ghinstallation.NewKeyFromFile(net.DefaultTransport, opts.AppId, opts.AppInstallationId, opts.AppKey)
-		if err != nil {
-			return nil, err
-		}
-		client.itr = itr
-		token, err = itr.Token(client.ctx)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		client.authMethod = "token"
+	client.authMethod = "app"
+	client.ctx = context.Background()
+	itr, err := ghinstallation.New(net.DefaultTransport, opts.AppId, opts.AppInstallationId, []byte(opts.AppKey))
+	if err != nil {
+		return nil, err
+	}
+	client.itr = itr
+	token, err := itr.Token(client.ctx)
+	if err != nil {
+		return nil, err
 	}
 	client.auth = &http.BasicAuth{
 		Username: "gitops-actions",

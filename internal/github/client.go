@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v61/github"
-	"golang.org/x/oauth2"
 )
 
 var (
@@ -23,7 +21,7 @@ type Client struct {
 }
 
 type ClientOpts struct {
-	Token, AppKey            string
+	AppKey            string
 	AppId, AppInstallationId int64
 }
 
@@ -31,17 +29,9 @@ func NewClient(opts *ClientOpts) (*Client, error) {
 	var err error
 	ctx := context.Background()
 	client := github.NewClient(nil)
-
-	if opts.Token != "" {
-		client, err = GetGHClient(opts, ctx, "pat")
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		client, err = GetGHClient(opts, ctx, "app")
-		if err != nil {
-			return nil, err
-		}
+	client, err = GetGHClient(opts, ctx)
+	if err != nil {
+		return nil, err
 	}
 	c := &Client{
 		Client: client,
@@ -56,26 +46,13 @@ func NewClient(opts *ClientOpts) (*Client, error) {
 	return c, nil
 }
 
-func GetGHClient(opts *ClientOpts, ctx context.Context, clientType string) (*github.Client, error) {
-	switch clientType {
-	case "pat":
-		ctx := context.Background()
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: opts.Token},
-		)
-		tc := oauth2.NewClient(ctx, ts)
-		client := github.NewClient(tc)
-		return client, nil
-	case "app":
-		itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, opts.AppId, opts.AppInstallationId, opts.AppKey)
-		if err != nil {
-			return nil, err
-		}
-		client := github.NewClient(&http.Client{Transport: itr})
-		return client, nil
-
+func GetGHClient(opts *ClientOpts, ctx context.Context) (*github.Client, error) {
+	itr, err := ghinstallation.New(http.DefaultTransport, opts.AppId, opts.AppInstallationId, []byte(opts.AppKey))
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("invalid client type")
+	client := github.NewClient(&http.Client{Transport: itr})
+	return client, nil
 }
 
 func (c *Client) CheckRateLimit() error {
