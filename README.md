@@ -349,4 +349,4 @@ jobs:
 ```
 
 > [!TIP]
-> It is recommended to use a Github App to authenticate with Github API. You can use the `tibdex/github-app-token` action to create a token for the Github App and use it in the action.
+> It is recommended to use a Github App to authenticate with Github API. You can use the `tibdex/github-app-token` ["INTENTIONALLY INTRODUCING CONFLICT"] action to create a token for the Github App and use it in the action.
